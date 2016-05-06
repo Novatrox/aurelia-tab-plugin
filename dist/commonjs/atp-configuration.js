@@ -14,7 +14,7 @@ var ATPConfiguration = exports.ATPConfiguration = function () {
 		_classCallCheck(this, ATPConfiguration);
 
 		this.aurelia = aurelia;
-		this.settings = akpOptions;
+		this.settings = _atpOptions.atpOptions;
 	}
 
 	ATPConfiguration.prototype.useDefaults = function useDefaults() {

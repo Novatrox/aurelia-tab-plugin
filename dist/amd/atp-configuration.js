@@ -17,7 +17,7 @@ define(['exports', './atp-options'], function (exports, _atpOptions) {
 			_classCallCheck(this, ATPConfiguration);
 
 			this.aurelia = aurelia;
-			this.settings = akpOptions;
+			this.settings = _atpOptions.atpOptions;
 		}
 
 		ATPConfiguration.prototype.useDefaults = function useDefaults() {

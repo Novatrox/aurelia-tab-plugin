@@ -19,7 +19,7 @@ System.register(['./atp-options'], function (_export, _context) {
 					_classCallCheck(this, ATPConfiguration);
 
 					this.aurelia = aurelia;
-					this.settings = akpOptions;
+					this.settings = atpOptions;
 				}
 
 				ATPConfiguration.prototype.useDefaults = function useDefaults() {

@@ -4,7 +4,7 @@ export class ATPConfiguration {
 	aurelia: any;
 	constructor(aurelia) {
 		this.aurelia = aurelia;
-		this.settings = akpOptions;
+		this.settings = atpOptions;
   	}
 	  
 	useDefaults() : ATPConfiguration {

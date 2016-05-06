@@ -4,7 +4,7 @@ define(['exports', 'aurelia-framework', '../atp-configuration', '../atp-handler'
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
-	exports.AKPCustomAttribute = undefined;
+	exports.ATPTabContextAttribute = undefined;
 
 	function _initDefineProp(target, property, descriptor, context) {
 		if (!descriptor) return;
@@ -57,24 +57,85 @@ define(['exports', 'aurelia-framework', '../atp-configuration', '../atp-handler'
 
 	var _dec, _dec2, _class, _desc, _value, _class2, _descriptor;
 
-	var AKPCustomAttribute = exports.AKPCustomAttribute = (_dec = (0, _aureliaFramework.customAttribute)('tabcontext'), _dec2 = (0, _aureliaFramework.inject)(Element, _atpHandler.ATPHandler, ATPConfiguration), _dec(_class = _dec2(_class = (_class2 = function () {
-		function AKPCustomAttribute(element, handler, config) {
-			_classCallCheck(this, AKPCustomAttribute);
+	var ATPTabContextAttribute = exports.ATPTabContextAttribute = (_dec = (0, _aureliaFramework.customAttribute)('tabcontext'), _dec2 = (0, _aureliaFramework.inject)(Element, _atpHandler.ATPHandler, _atpConfiguration.ATPConfiguration), _dec(_class = _dec2(_class = (_class2 = function () {
+		function ATPTabContextAttribute(element, handler, config) {
+			_classCallCheck(this, ATPTabContextAttribute);
 
 			_initDefineProp(this, 'level', _descriptor, this);
 
+			this.isAttached = false;
+			this.tabbableChildren = [];
+
 			this.element = element;
-			this.eventHandler = eventHandler;
+			this.handler = handler;
 			this.config = config;
 		}
 
-		AKPCustomAttribute.prototype.attached = function attached() {};
+		ATPTabContextAttribute.prototype.levelChanged = function levelChanged(newval, oldvalue) {
+			if (!this.isAttached) {
+				return;
+			}
 
-		AKPCustomAttribute.prototype.detached = function detached() {};
+			var self = this;
+			if (oldvalue.indexOf(",") !== -1) {
+				var levels = oldvalue.split(",");
+				levels.forEach(function (level) {
+					var parsedLevel = parseInt(level.trim(), 10);
+					self.handler.unregisterElements(self.tabbableChildren, parsedLevel);
+				});
+			} else {
+				var parsedLevel = parseInt(oldvalue.trim(), 10);
+				this.handler.unregisterElements(this.tabbableChildren, parsedLevel);
+			}
 
-		return AKPCustomAttribute;
+			if (newval.indexOf(",") !== -1) {
+				var _levels = newval.split(",");
+				_levels.forEach(function (level) {
+					var parsedLevel = parseInt(level.trim(), 10);
+					self.handler.registerElements(self.tabbableChildren, parsedLevel);
+				});
+			} else {
+				var _parsedLevel = parseInt(newval.trim(), 10);
+				this.handler.registerElements(this.tabbableChildren, _parsedLevel);
+			}
+		};
+
+		ATPTabContextAttribute.prototype.attached = function attached() {
+			console.log("ATP Attached!");
+			this.isAttached = true;
+			var children = this.element.querySelectorAll("[tabindex]");
+			for (var index = 0; index < children.length; index++) {
+				var element = children[index];
+				this.tabbableChildren.push(element);
+			}
+			if (this.tabbableChildren.length === 0) {
+				return;
+			}
+			console.log("I found " + this.tabbableChildren.length + " children with tabindexes");
+			var self = this;
+			if (this.level.indexOf(",") !== -1) {
+				var levels = this.level.split(",");
+				levels.forEach(function (level) {
+					var parsedLevel = parseInt(level.trim(), 10);
+					self.handler.registerElements(self.tabbableChildren, parsedLevel);
+				});
+			} else {
+				var parsedLevel = parseInt(this.level.trim(), 10);
+				this.handler.registerElements(this.tabbableChildren, parsedLevel);
+			}
+		};
+
+		ATPTabContextAttribute.prototype.detached = function detached() {
+			if (this.tabbableChildren.length > 0) {
+				this.handler.unregisterElements(this.tabbableChildren);
+			}
+		};
+
+		return ATPTabContextAttribute;
 	}(), (_descriptor = _applyDecoratedDescriptor(_class2.prototype, 'level', [_aureliaFramework.bindable], {
 		enumerable: true,
-		initializer: null
+		initializer: function initializer() {
+			return "0";
+		}
 	})), _class2)) || _class) || _class);
 });

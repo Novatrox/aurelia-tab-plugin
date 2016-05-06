@@ -2,7 +2,7 @@ import { atpOptions } from './atp-options';
 export let ATPConfiguration = class ATPConfiguration {
 	constructor(aurelia) {
 		this.aurelia = aurelia;
-		this.settings = akpOptions;
+		this.settings = atpOptions;
 	}
 
 	useDefaults() {

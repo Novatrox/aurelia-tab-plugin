@@ -1,27 +1,85 @@
 import {customAttribute, inject, bindable} from 'aurelia-framework';
-import {AKPConfiguration} from '../atp-configuration';
+import {ATPConfiguration} from '../atp-configuration';
 import {ATPHandler} from '../atp-handler';
 
 @customAttribute('tabcontext')
 @inject(Element, ATPHandler, ATPConfiguration)
-export class AKPCustomAttribute {
+export class ATPTabContextAttribute {
 	element: HTMLElement;
-	eventHandler: ATPHandler;
+	handler: ATPHandler;
 	config: ATPConfiguration;
-	@bindable level: number;
+	@bindable level: string = "0";
+	isAttached: boolean = false;
 	constructor(element, handler, config) {
 		this.element = element;
-		this.eventHandler = eventHandler;
+		this.handler = handler;
 		this.config = config;
 	}
 	
-		   
+	levelChanged(newval, oldvalue) {
+		if(!this.isAttached) {
+			return;
+		}
+		//Unreg
+		let self = this;
+		if(oldvalue.indexOf(",") !== -1) {
+			//multiple levels
+			let levels = oldvalue.split(",");
+			levels.forEach(function(level) {
+				let parsedLevel = parseInt(level.trim(),10);
+				self.handler.unregisterElements(self.tabbableChildren, parsedLevel);				
+			});
+		} else {
+			let parsedLevel = parseInt(oldvalue.trim(),10);
+			this.handler.unregisterElements(this.tabbableChildren, parsedLevel);
+		}
+		
+		//Rereg with new value
+		if(newval.indexOf(",") !== -1) {
+			//multiple levels
+			let levels = newval.split(",");
+			levels.forEach(function(level) {
+				let parsedLevel = parseInt(level.trim(),10);
+				self.handler.registerElements(self.tabbableChildren, parsedLevel);				
+			});
+		} else {
+			let parsedLevel = parseInt(newval.trim(),10);
+			this.handler.registerElements(this.tabbableChildren, parsedLevel);	
+		}
+	}
+	
+	tabbableChildren: HTMLElement[] = [];	   
 	attached() {
-		//Find all children tabindexes
-		//Add watcher if children are added or removed
-		//Send list to handler
+		console.log("ATP Attached!");
+		this.isAttached = true;
+		let children = this.element.querySelectorAll("[tabindex]");
+		for (let index = 0; index < children.length; index++) {
+			let element = children[index];
+			this.tabbableChildren.push(element);
+			
+		}
+		if(this.tabbableChildren.length === 0) {
+			return;
+		}
+		console.log("I found " + this.tabbableChildren.length + " children with tabindexes");
+		let self = this;
+		if(this.level.indexOf(",") !== -1) {
+			//multiple levels
+			let levels = this.level.split(",");
+			levels.forEach(function(level) {
+				let parsedLevel = parseInt(level.trim(),10);
+				self.handler.registerElements(self.tabbableChildren, parsedLevel);				
+			});
+		} else {
+			let parsedLevel = parseInt(this.level.trim(),10);
+			this.handler.registerElements(this.tabbableChildren, parsedLevel);	
+		}
+		 
+		
 	}
 	detached() {
-		//Remove context
+		if(this.tabbableChildren.length > 0) {
+			this.handler.unregisterElements(this.tabbableChildren);
+		}
 	}
 }
