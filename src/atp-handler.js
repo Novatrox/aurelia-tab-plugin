@@ -15,7 +15,7 @@ export class ATPHandler {
 	}
 	
 	registerElements(elements: Element[], level:number = 0) {
-		let index = this.contexts.map(function(el) {return el.level;}).indexOf(level);
+		let index = this.contexts.map(function(el) { return el.level; }).indexOf(level);
 		if(index === -1) {
 			var levelContext = new context();
 			levelContext.level = level;
