@@ -50,21 +50,33 @@ System.register(['aurelia-framework', './atp-configuration'], function (_export,
 				ATPHandler.prototype.onTabPress = function onTabPress() {
 					console.log("tab fired, reverse is: " + this.reverse);
 					var nextIndex = 0;
+					var enabledCurrentElements = this.currentElements.filter(function (item) {
+						if (item.disabled) {
+							return false;
+						}
+
+						if (item.offsetParent === null) {
+							return false;
+						}
+						return true;
+					});
+
 					if (this.reverse) {
 						if (this.currentIndex == null || this.currentIndex === 0) {
-							nextIndex = this.currentElements.length - 1;
+							nextIndex = enabledCurrentElements.length - 1;
 						} else {
 							nextIndex = --this.currentIndex;
 						}
 					} else {
-						if (this.currentIndex == null || this.currentIndex === this.currentElements.length - 1) {
+						if (this.currentIndex == null || this.currentIndex >= enabledCurrentElements.length - 1) {
 							nextIndex = 0;
 						} else {
 							nextIndex = ++this.currentIndex;
 						}
 					}
 
-					var nextElement = this.currentElements[nextIndex];
+					var nextElement = enabledCurrentElements[nextIndex];
+
 					this.currentIndex = nextIndex;
 					nextElement.focus();
 				};

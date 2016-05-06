@@ -34,21 +34,33 @@ export let ATPHandler = (_dec = inject(ATPConfiguration), _dec(_class = class AT
 	onTabPress() {
 		console.log("tab fired, reverse is: " + this.reverse);
 		let nextIndex = 0;
+		let enabledCurrentElements = this.currentElements.filter(function (item) {
+			if (item.disabled) {
+				return false;
+			}
+
+			if (item.offsetParent === null) {
+				return false;
+			}
+			return true;
+		});
+
 		if (this.reverse) {
 			if (this.currentIndex == null || this.currentIndex === 0) {
-				nextIndex = this.currentElements.length - 1;
+				nextIndex = enabledCurrentElements.length - 1;
 			} else {
 				nextIndex = --this.currentIndex;
 			}
 		} else {
-			if (this.currentIndex == null || this.currentIndex === this.currentElements.length - 1) {
+			if (this.currentIndex == null || this.currentIndex >= enabledCurrentElements.length - 1) {
 				nextIndex = 0;
 			} else {
 				nextIndex = ++this.currentIndex;
 			}
 		}
 
-		let nextElement = this.currentElements[nextIndex];
+		let nextElement = enabledCurrentElements[nextIndex];
+
 		this.currentIndex = nextIndex;
 		nextElement.focus();
 	}
