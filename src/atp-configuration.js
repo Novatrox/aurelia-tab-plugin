@@ -5,7 +5,7 @@ export class ATPConfiguration {
 	constructor(aurelia) {
 		this.aurelia = aurelia;
 		this.settings = akpOptions;
-  	}
+  }
 	  
 	useDefaults() : ATPConfiguration {
 		 this.settings = Object.assign(this.settings, atpOptions);
