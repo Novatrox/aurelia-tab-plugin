@@ -1,2 +1,2 @@
 # aurelia-tab-plugin
-Easy handle tabbing with aurelia
+Easily handle tabbing with aurelia
