@@ -83,9 +83,8 @@ var ATPHandler = exports.ATPHandler = (_dec = (0, _aureliaFramework.inject)(_atp
 				nextElement.focus();
 			}
 			if (this.config.settings.autoScroll) {
-				var offsetTop = calculateOffsetTop(nextElement) - window.innerHeight / 2;
+				var offsetTop = this.calculateOffsetTop(nextElement) - window.innerHeight / 2;
 				window.scrollTo(0, offsetTop);
-				nextElement.scrollIntoView(true);
 			}
 		}
 	};

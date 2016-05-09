@@ -70,9 +70,8 @@ export let ATPHandler = (_dec = inject(ATPConfiguration), _dec(_class = class AT
 				nextElement.focus();
 			}
 			if (this.config.settings.autoScroll) {
-				let offsetTop = calculateOffsetTop(nextElement) - window.innerHeight / 2;
+				let offsetTop = this.calculateOffsetTop(nextElement) - window.innerHeight / 2;
 				window.scrollTo(0, offsetTop);
-				nextElement.scrollIntoView(true);
 			}
 		}
 	}

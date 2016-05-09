@@ -72,9 +72,8 @@ export class ATPHandler {
 				nextElement.focus();				
 			}
 			if(this.config.settings.autoScroll) {
-				let offsetTop = calculateOffsetTop(nextElement) - (window.innerHeight / 2);
+				let offsetTop = this.calculateOffsetTop(nextElement) - (window.innerHeight / 2);
 				window.scrollTo(0, offsetTop)
-				nextElement.scrollIntoView(true);				
 			}
 			
 		}
