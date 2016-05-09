@@ -41,10 +41,11 @@ export let ATPHandler = (_dec = inject(ATPConfiguration), _dec(_class = class AT
 			if (item.disabled) {
 				return false;
 			}
-
-			if (item.offsetParent === null) {
+			var style = window.getComputedStyle(item);
+			if (style.display === 'none') {
 				return false;
 			}
+
 			return true;
 		});
 
@@ -70,14 +71,10 @@ export let ATPHandler = (_dec = inject(ATPConfiguration), _dec(_class = class AT
 				nextElement.focus();
 			}
 			if (this.config.settings.autoScroll) {
-				let offsetTop = this.calculateOffsetTop(nextElement) - window.innerHeight / 2;
-				window.scrollTo(0, offsetTop);
+				nextElement.scrollIntoView(true);
+				window.scrollTo(0, window.scrollTop - this.config.settings.scrollOffset);
 			}
 		}
-	}
-
-	calculateOffsetTop(element) {
-		return element.offsetTop + (element.offsetParent ? this.calculateOffsetTop(element.parentElement) : 0);
 	}
 
 	calculateElementsInCurrentContext() {
@@ -149,6 +146,16 @@ export let ATPHandler = (_dec = inject(ATPConfiguration), _dec(_class = class AT
 		let elementsInLevel = this.contexts[index].elements;
 
 		elements.forEach(function (element) {
+			var attrib = element.attributes.getNamedItem("tabindex");
+			if (attrib && attrib.value) {
+				var indexParsed = parseInt(attrib.value, 10);
+				if (indexParsed < 0) {
+					return;
+				}
+			} else {
+					throw "Failed to parse tabIndex";
+				}
+
 			let elementIndex = elementsInLevel.map(function (tabbableElement) {
 				return tabbableElement.element;
 			}).indexOf(element);

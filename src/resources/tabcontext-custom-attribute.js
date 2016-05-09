@@ -8,79 +8,104 @@ export class ATPTabContextAttribute {
 	element: HTMLElement;
 	handler: ATPHandler;
 	config: ATPConfiguration;
-	@bindable level: string = "0";
 	isAttached: boolean = false;
+	tabbableChildren: HTMLElement[] = [];
+
+	@bindable level: string = "0";
+	@bindable observe: boolean = true;
+
+	observer: MutationObserver;
+	observerConfig: MutationObserverInit;
 	constructor(element, handler, config) {
 		this.element = element;
 		this.handler = handler;
 		this.config = config;
+		var self = this;
+		this.observer = new MutationObserver(function (mutations) {
+			self.onChange();
+		});
+		this.config = { attributes: false, childList: true, characterData: false, subtree: true };
 	}
-	
+
+
+
 	levelChanged(newval, oldvalue) {
-		if(!this.isAttached) {
+		if (!this.isAttached) {
 			return;
 		}
 		//Unreg
-		let self = this;
-		if(oldvalue.indexOf(",") !== -1) {
-			//multiple levels
-			let levels = oldvalue.split(",");
-			levels.forEach(function(level) {
-				let parsedLevel = parseInt(level.trim(),10);
-				self.handler.unregisterElements(self.tabbableChildren, parsedLevel);				
-			});
-		} else {
-			let parsedLevel = parseInt(oldvalue.trim(),10);
-			this.handler.unregisterElements(this.tabbableChildren, parsedLevel);
-		}
-		
+		this.unregisterElements(this.tabbableChildren, oldvalue);
+
 		//Rereg with new value
-		if(newval.indexOf(",") !== -1) {
-			//multiple levels
-			let levels = newval.split(",");
-			levels.forEach(function(level) {
-				let parsedLevel = parseInt(level.trim(),10);
-				self.handler.registerElements(self.tabbableChildren, parsedLevel);				
-			});
-		} else {
-			let parsedLevel = parseInt(newval.trim(),10);
-			this.handler.registerElements(this.tabbableChildren, parsedLevel);	
-		}
+		this.registerElements(this.tabbableChildren, newval);
 	}
-	
-	tabbableChildren: HTMLElement[] = [];	   
-	attached() {
-		console.log("ATP Attached!");
-		this.isAttached = true;
-		let children = this.element.querySelectorAll("[tabindex]");
+
+	discoverElements(context: HTMLElement): HTMLElement[] {
+		let result: HTMLElement[] = [];
+		let children = context.querySelectorAll("[tabindex]");
 		for (let index = 0; index < children.length; index++) {
 			let element = children[index];
-			this.tabbableChildren.push(element);
-			
+			result.push(element);
 		}
-		if(this.tabbableChildren.length === 0) {
-			return;
-		}
-		console.log("I found " + this.tabbableChildren.length + " children with tabindexes");
-		let self = this;
-		if(this.level.indexOf(",") !== -1) {
+		return result;
+	}
+
+	unregisterElements(elements: HTMLElement[], levelString: string) {
+		var self = this;
+		if (levelString.indexOf(",") !== -1) {
 			//multiple levels
-			let levels = this.level.split(",");
-			levels.forEach(function(level) {
-				let parsedLevel = parseInt(level.trim(),10);
-				self.handler.registerElements(self.tabbableChildren, parsedLevel);				
+			let levels = levelString.split(",");
+			levels.forEach(function (level) {
+				let parsedLevel = parseInt(level.trim(), 10);
+				self.handler.unregisterElements(elements, parsedLevel);
 			});
 		} else {
-			let parsedLevel = parseInt(this.level.trim(),10);
-			this.handler.registerElements(this.tabbableChildren, parsedLevel);	
+			let parsedLevel = parseInt(levelString.trim(), 10);
+			this.handler.unregisterElements(elements, parsedLevel);
 		}
-		 
-		
+	}
+
+	registerElements(elements: HTMLElement[], levelString: string) {
+		let self = this;
+		if (levelString.indexOf(",") !== -1) {
+			//multiple levels
+			let levels = levelString.split(",");
+			levels.forEach(function (level) {
+				let parsedLevel = parseInt(level.trim(), 10);
+				self.handler.registerElements(elements, parsedLevel);
+			});
+		} else {
+			let parsedLevel = parseInt(levelString.trim(), 10);
+			this.handler.registerElements(elements, parsedLevel);
+		}
+	}
+
+	onChange() {
+		this.unregisterElements(this.tabbableChildren, this.level);
+		this.tabbableChildren = this.discoverElements(this.element);
+		if (this.tabbableChildren.length > 0) {
+			this.registerElements(this.tabbableChildren, this.level);
+		}
+	}
+
+
+	attached() {
+		this.isAttached = true;
+		this.tabbableChildren = this.discoverElements(this.element);
+		if (this.tabbableChildren.length === 0) {
+			return;
+		}
+		this.registerElements(this.tabbableChildren, this.level);
+		if (this.observe === true) {
+			this.observer.observe(this.element, this.config);
+		}
 	}
 	detached() {
-		if(this.tabbableChildren.length > 0) {
-			let parsedLevel = parseInt(this.level.trim(),10);
-			this.handler.unregisterElements(this.tabbableChildren, parsedLevel);
+		if (this.tabbableChildren.length > 0) {
+			this.unregisterElements(this.tabbableChildren, this.level);
+		}
+		if (this.observe) {
+			this.observer.disconnect();
 		}
 	}
 }

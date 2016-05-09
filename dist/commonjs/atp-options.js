@@ -5,5 +5,6 @@ Object.defineProperty(exports, "__esModule", {
 });
 var atpOptions = exports.atpOptions = {
 	autoFocus: true,
-	autoScroll: true
+	autoScroll: true,
+	scrollOffset: 300
 };

@@ -1,4 +1,5 @@
 export let atpOptions = {
 	autoFocus: true,
-	autoScroll: true
+	autoScroll: true,
+	scrollOffset: 300
 };

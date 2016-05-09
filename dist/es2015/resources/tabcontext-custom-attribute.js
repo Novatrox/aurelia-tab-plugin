@@ -1,4 +1,4 @@
-var _dec, _dec2, _class, _desc, _value, _class2, _descriptor;
+var _dec, _dec2, _class, _desc, _value, _class2, _descriptor, _descriptor2;
 
 function _initDefineProp(target, property, descriptor, context) {
 	if (!descriptor) return;
@@ -49,14 +49,21 @@ import { ATPHandler } from '../atp-handler';
 
 export let ATPTabContextAttribute = (_dec = customAttribute('tabcontext'), _dec2 = inject(Element, ATPHandler, ATPConfiguration), _dec(_class = _dec2(_class = (_class2 = class ATPTabContextAttribute {
 	constructor(element, handler, config) {
-		_initDefineProp(this, 'level', _descriptor, this);
-
 		this.isAttached = false;
 		this.tabbableChildren = [];
+
+		_initDefineProp(this, 'level', _descriptor, this);
+
+		_initDefineProp(this, 'observe', _descriptor2, this);
 
 		this.element = element;
 		this.handler = handler;
 		this.config = config;
+		var self = this;
+		this.observer = new MutationObserver(function (mutations) {
+			self.onChange();
+		});
+		this.config = { attributes: false, childList: true, characterData: false, subtree: true };
 	}
 
 	levelChanged(newval, oldvalue) {
@@ -64,63 +71,84 @@ export let ATPTabContextAttribute = (_dec = customAttribute('tabcontext'), _dec2
 			return;
 		}
 
-		let self = this;
-		if (oldvalue.indexOf(",") !== -1) {
-			let levels = oldvalue.split(",");
-			levels.forEach(function (level) {
-				let parsedLevel = parseInt(level.trim(), 10);
-				self.handler.unregisterElements(self.tabbableChildren, parsedLevel);
-			});
-		} else {
-			let parsedLevel = parseInt(oldvalue.trim(), 10);
-			this.handler.unregisterElements(this.tabbableChildren, parsedLevel);
-		}
+		this.unregisterElements(this.tabbableChildren, oldvalue);
 
-		if (newval.indexOf(",") !== -1) {
-			let levels = newval.split(",");
+		this.registerElements(this.tabbableChildren, newval);
+	}
+
+	discoverElements(context) {
+		let result = [];
+		let children = context.querySelectorAll("[tabindex]");
+		for (let index = 0; index < children.length; index++) {
+			let element = children[index];
+			result.push(element);
+		}
+		return result;
+	}
+
+	unregisterElements(elements, levelString) {
+		var self = this;
+		if (levelString.indexOf(",") !== -1) {
+			let levels = levelString.split(",");
 			levels.forEach(function (level) {
 				let parsedLevel = parseInt(level.trim(), 10);
-				self.handler.registerElements(self.tabbableChildren, parsedLevel);
+				self.handler.unregisterElements(elements, parsedLevel);
 			});
 		} else {
-			let parsedLevel = parseInt(newval.trim(), 10);
-			this.handler.registerElements(this.tabbableChildren, parsedLevel);
+			let parsedLevel = parseInt(levelString.trim(), 10);
+			this.handler.unregisterElements(elements, parsedLevel);
+		}
+	}
+
+	registerElements(elements, levelString) {
+		let self = this;
+		if (levelString.indexOf(",") !== -1) {
+			let levels = levelString.split(",");
+			levels.forEach(function (level) {
+				let parsedLevel = parseInt(level.trim(), 10);
+				self.handler.registerElements(elements, parsedLevel);
+			});
+		} else {
+			let parsedLevel = parseInt(levelString.trim(), 10);
+			this.handler.registerElements(elements, parsedLevel);
+		}
+	}
+
+	onChange() {
+		this.unregisterElements(this.tabbableChildren, this.level);
+		this.tabbableChildren = this.discoverElements(this.element);
+		if (this.tabbableChildren.length > 0) {
+			this.registerElements(this.tabbableChildren, this.level);
 		}
 	}
 
 	attached() {
-		console.log("ATP Attached!");
 		this.isAttached = true;
-		let children = this.element.querySelectorAll("[tabindex]");
-		for (let index = 0; index < children.length; index++) {
-			let element = children[index];
-			this.tabbableChildren.push(element);
-		}
+		this.tabbableChildren = this.discoverElements(this.element);
 		if (this.tabbableChildren.length === 0) {
 			return;
 		}
-		console.log("I found " + this.tabbableChildren.length + " children with tabindexes");
-		let self = this;
-		if (this.level.indexOf(",") !== -1) {
-			let levels = this.level.split(",");
-			levels.forEach(function (level) {
-				let parsedLevel = parseInt(level.trim(), 10);
-				self.handler.registerElements(self.tabbableChildren, parsedLevel);
-			});
-		} else {
-			let parsedLevel = parseInt(this.level.trim(), 10);
-			this.handler.registerElements(this.tabbableChildren, parsedLevel);
+		this.registerElements(this.tabbableChildren, this.level);
+		if (this.observe === true) {
+			this.observer.observe(this.element, this.config);
 		}
 	}
 	detached() {
 		if (this.tabbableChildren.length > 0) {
-			let parsedLevel = parseInt(this.level.trim(), 10);
-			this.handler.unregisterElements(this.tabbableChildren, parsedLevel);
+			this.unregisterElements(this.tabbableChildren, this.level);
+		}
+		if (this.observe) {
+			this.observer.disconnect();
 		}
 	}
 }, (_descriptor = _applyDecoratedDescriptor(_class2.prototype, 'level', [bindable], {
 	enumerable: true,
 	initializer: function () {
 		return "0";
+	}
+}), _descriptor2 = _applyDecoratedDescriptor(_class2.prototype, 'observe', [bindable], {
+	enumerable: true,
+	initializer: function () {
+		return true;
 	}
 })), _class2)) || _class) || _class);

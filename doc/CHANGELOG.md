@@ -1,3 +1,12 @@
+### 0.0.9 (2016-05-09)
+** Fixed observing
+** cleanup
+** bugfixes
+
+### 0.0.8 (2016-05-09)
+** Fixed scrolling code to be better.
+** Bug fix when dismissing negative tabindexes
+
 ### 0.0.7 (2016-05-09)
 ** bug fix
 

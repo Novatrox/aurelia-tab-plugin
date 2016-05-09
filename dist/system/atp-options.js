@@ -7,7 +7,8 @@ System.register([], function (_export, _context) {
 		execute: function () {
 			_export("atpOptions", atpOptions = {
 				autoFocus: true,
-				autoScroll: true
+				autoScroll: true,
+				scrollOffset: 300
 			});
 
 			_export("atpOptions", atpOptions);

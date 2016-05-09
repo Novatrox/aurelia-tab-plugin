@@ -6,6 +6,7 @@ define(["exports"], function (exports) {
 	});
 	var atpOptions = exports.atpOptions = {
 		autoFocus: true,
-		autoScroll: true
+		autoScroll: true,
+		scrollOffset: 300
 	};
 });

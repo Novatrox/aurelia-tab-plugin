@@ -55,10 +55,11 @@ define(['exports', 'aurelia-framework', './atp-configuration'], function (export
 				if (item.disabled) {
 					return false;
 				}
-
-				if (item.offsetParent === null) {
+				var style = window.getComputedStyle(item);
+				if (style.display === 'none') {
 					return false;
 				}
+
 				return true;
 			});
 
@@ -84,14 +85,10 @@ define(['exports', 'aurelia-framework', './atp-configuration'], function (export
 					nextElement.focus();
 				}
 				if (this.config.settings.autoScroll) {
-					var offsetTop = this.calculateOffsetTop(nextElement) - window.innerHeight / 2;
-					window.scrollTo(0, offsetTop);
+					nextElement.scrollIntoView(true);
+					window.scrollTo(0, window.scrollTop - this.config.settings.scrollOffset);
 				}
 			}
-		};
-
-		ATPHandler.prototype.calculateOffsetTop = function calculateOffsetTop(element) {
-			return element.offsetTop + (element.offsetParent ? this.calculateOffsetTop(element.parentElement) : 0);
 		};
 
 		ATPHandler.prototype.calculateElementsInCurrentContext = function calculateElementsInCurrentContext() {
@@ -167,6 +164,16 @@ define(['exports', 'aurelia-framework', './atp-configuration'], function (export
 			var elementsInLevel = this.contexts[index].elements;
 
 			elements.forEach(function (element) {
+				var attrib = element.attributes.getNamedItem("tabindex");
+				if (attrib && attrib.value) {
+					var indexParsed = parseInt(attrib.value, 10);
+					if (indexParsed < 0) {
+						return;
+					}
+				} else {
+						throw "Failed to parse tabIndex";
+					}
+
 				var elementIndex = elementsInLevel.map(function (tabbableElement) {
 					return tabbableElement.element;
 				}).indexOf(element);

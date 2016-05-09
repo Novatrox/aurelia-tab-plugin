@@ -1,7 +1,7 @@
 'use strict';
 
 System.register(['aurelia-framework', '../atp-configuration', '../atp-handler'], function (_export, _context) {
-	var customAttribute, inject, bindable, ATPConfiguration, ATPHandler, _dec, _dec2, _class, _desc, _value, _class2, _descriptor, ATPTabContextAttribute;
+	var customAttribute, inject, bindable, ATPConfiguration, ATPHandler, _dec, _dec2, _class, _desc, _value, _class2, _descriptor, _descriptor2, ATPTabContextAttribute;
 
 	function _initDefineProp(target, property, descriptor, context) {
 		if (!descriptor) return;
@@ -67,14 +67,21 @@ System.register(['aurelia-framework', '../atp-configuration', '../atp-handler'],
 				function ATPTabContextAttribute(element, handler, config) {
 					_classCallCheck(this, ATPTabContextAttribute);
 
-					_initDefineProp(this, 'level', _descriptor, this);
-
 					this.isAttached = false;
 					this.tabbableChildren = [];
+
+					_initDefineProp(this, 'level', _descriptor, this);
+
+					_initDefineProp(this, 'observe', _descriptor2, this);
 
 					this.element = element;
 					this.handler = handler;
 					this.config = config;
+					var self = this;
+					this.observer = new MutationObserver(function (mutations) {
+						self.onChange();
+					});
+					this.config = { attributes: false, childList: true, characterData: false, subtree: true };
 				}
 
 				ATPTabContextAttribute.prototype.levelChanged = function levelChanged(newval, oldvalue) {
@@ -82,59 +89,75 @@ System.register(['aurelia-framework', '../atp-configuration', '../atp-handler'],
 						return;
 					}
 
+					this.unregisterElements(this.tabbableChildren, oldvalue);
+
+					this.registerElements(this.tabbableChildren, newval);
+				};
+
+				ATPTabContextAttribute.prototype.discoverElements = function discoverElements(context) {
+					var result = [];
+					var children = context.querySelectorAll("[tabindex]");
+					for (var index = 0; index < children.length; index++) {
+						var element = children[index];
+						result.push(element);
+					}
+					return result;
+				};
+
+				ATPTabContextAttribute.prototype.unregisterElements = function unregisterElements(elements, levelString) {
 					var self = this;
-					if (oldvalue.indexOf(",") !== -1) {
-						var levels = oldvalue.split(",");
+					if (levelString.indexOf(",") !== -1) {
+						var levels = levelString.split(",");
 						levels.forEach(function (level) {
 							var parsedLevel = parseInt(level.trim(), 10);
-							self.handler.unregisterElements(self.tabbableChildren, parsedLevel);
+							self.handler.unregisterElements(elements, parsedLevel);
 						});
 					} else {
-						var parsedLevel = parseInt(oldvalue.trim(), 10);
-						this.handler.unregisterElements(this.tabbableChildren, parsedLevel);
+						var parsedLevel = parseInt(levelString.trim(), 10);
+						this.handler.unregisterElements(elements, parsedLevel);
 					}
+				};
 
-					if (newval.indexOf(",") !== -1) {
-						var _levels = newval.split(",");
-						_levels.forEach(function (level) {
+				ATPTabContextAttribute.prototype.registerElements = function registerElements(elements, levelString) {
+					var self = this;
+					if (levelString.indexOf(",") !== -1) {
+						var levels = levelString.split(",");
+						levels.forEach(function (level) {
 							var parsedLevel = parseInt(level.trim(), 10);
-							self.handler.registerElements(self.tabbableChildren, parsedLevel);
+							self.handler.registerElements(elements, parsedLevel);
 						});
 					} else {
-						var _parsedLevel = parseInt(newval.trim(), 10);
-						this.handler.registerElements(this.tabbableChildren, _parsedLevel);
+						var parsedLevel = parseInt(levelString.trim(), 10);
+						this.handler.registerElements(elements, parsedLevel);
+					}
+				};
+
+				ATPTabContextAttribute.prototype.onChange = function onChange() {
+					this.unregisterElements(this.tabbableChildren, this.level);
+					this.tabbableChildren = this.discoverElements(this.element);
+					if (this.tabbableChildren.length > 0) {
+						this.registerElements(this.tabbableChildren, this.level);
 					}
 				};
 
 				ATPTabContextAttribute.prototype.attached = function attached() {
-					console.log("ATP Attached!");
 					this.isAttached = true;
-					var children = this.element.querySelectorAll("[tabindex]");
-					for (var index = 0; index < children.length; index++) {
-						var element = children[index];
-						this.tabbableChildren.push(element);
-					}
+					this.tabbableChildren = this.discoverElements(this.element);
 					if (this.tabbableChildren.length === 0) {
 						return;
 					}
-					console.log("I found " + this.tabbableChildren.length + " children with tabindexes");
-					var self = this;
-					if (this.level.indexOf(",") !== -1) {
-						var levels = this.level.split(",");
-						levels.forEach(function (level) {
-							var parsedLevel = parseInt(level.trim(), 10);
-							self.handler.registerElements(self.tabbableChildren, parsedLevel);
-						});
-					} else {
-						var parsedLevel = parseInt(this.level.trim(), 10);
-						this.handler.registerElements(this.tabbableChildren, parsedLevel);
+					this.registerElements(this.tabbableChildren, this.level);
+					if (this.observe === true) {
+						this.observer.observe(this.element, this.config);
 					}
 				};
 
 				ATPTabContextAttribute.prototype.detached = function detached() {
 					if (this.tabbableChildren.length > 0) {
-						var parsedLevel = parseInt(this.level.trim(), 10);
-						this.handler.unregisterElements(this.tabbableChildren, parsedLevel);
+						this.unregisterElements(this.tabbableChildren, this.level);
+					}
+					if (this.observe) {
+						this.observer.disconnect();
 					}
 				};
 
@@ -143,6 +166,11 @@ System.register(['aurelia-framework', '../atp-configuration', '../atp-handler'],
 				enumerable: true,
 				initializer: function initializer() {
 					return "0";
+				}
+			}), _descriptor2 = _applyDecoratedDescriptor(_class2.prototype, 'observe', [bindable], {
+				enumerable: true,
+				initializer: function initializer() {
+					return true;
 				}
 			})), _class2)) || _class) || _class));
 

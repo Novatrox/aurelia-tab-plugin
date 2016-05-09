@@ -1,6 +1,6 @@
 {
   "name": "aurelia-tab-plugin",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "description": "A tab handler plugin for Aurelia",
   "keywords": [
     "aurelia",
