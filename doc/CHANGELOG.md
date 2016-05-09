@@ -1,3 +1,7 @@
+### 0.0.6 (2016-05-09)
+** Autofocus setting and autoscroll setting
+** Implemented autoscroll
+
 ### 0.0.5 (2016-05-09)
 ** null check bug
 

@@ -1,3 +1,4 @@
 export let atpOptions = {
-	defaultGlobal: true
+	autoFocus: true,
+	autoScroll: true
 };

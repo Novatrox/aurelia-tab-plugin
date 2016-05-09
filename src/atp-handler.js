@@ -68,11 +68,23 @@ export class ATPHandler {
 		this.currentIndex = nextIndex;
 		
 		if(nextElement) {
-			nextElement.focus();
+			if(this.config.settings.autoFocus) {
+				nextElement.focus();				
+			}
+			if(this.config.settings.autoScroll) {
+				let offsetTop = calculateOffsetTop(nextElement) - (window.innerHeight / 2);
+				window.scrollTo(0, offsetTop)
+				nextElement.scrollIntoView(true);				
+			}
+			
 		}
 		
 	}
 	
+	
+	calculateOffsetTop(element : HTMLElement) : number {
+		return element.offsetTop + (element.offsetParent ? this.calculateOffsetTop(element.parentElement) : 0);
+	}
 	
 	
 	calculateElementsInCurrentContext() {
@@ -119,7 +131,13 @@ export class ATPHandler {
 			object.element = element;			
 			var attrib = element.attributes.getNamedItem("tabindex");
 			if(attrib && attrib.value) {
-				object.index = parseInt(attrib.value, 10);				
+				var indexParsed = parseInt(attrib.value, 10);	
+				if(indexParsed < 0) {
+					return; //dont add negative tabindex, used as custom handle to skip the index
+				}
+				object.index = indexParsed;
+			} else {
+				throw "Failed to parse tabIndex";
 			}
 			this.contexts[index].elements.push(object);			
 		}, this);	

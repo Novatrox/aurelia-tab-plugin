@@ -79,8 +79,19 @@ var ATPHandler = exports.ATPHandler = (_dec = (0, _aureliaFramework.inject)(_atp
 		this.currentIndex = nextIndex;
 
 		if (nextElement) {
-			nextElement.focus();
+			if (this.config.settings.autoFocus) {
+				nextElement.focus();
+			}
+			if (this.config.settings.autoScroll) {
+				var offsetTop = calculateOffsetTop(nextElement) - window.innerHeight / 2;
+				window.scrollTo(0, offsetTop);
+				nextElement.scrollIntoView(true);
+			}
 		}
+	};
+
+	ATPHandler.prototype.calculateOffsetTop = function calculateOffsetTop(element) {
+		return element.offsetTop + (element.offsetParent ? this.calculateOffsetTop(element.parentElement) : 0);
 	};
 
 	ATPHandler.prototype.calculateElementsInCurrentContext = function calculateElementsInCurrentContext() {
@@ -132,7 +143,13 @@ var ATPHandler = exports.ATPHandler = (_dec = (0, _aureliaFramework.inject)(_atp
 			object.element = element;
 			var attrib = element.attributes.getNamedItem("tabindex");
 			if (attrib && attrib.value) {
-				object.index = parseInt(attrib.value, 10);
+				var indexParsed = parseInt(attrib.value, 10);
+				if (indexParsed < 0) {
+					return;
+				}
+				object.index = indexParsed;
+			} else {
+				throw "Failed to parse tabIndex";
 			}
 			this.contexts[index].elements.push(object);
 		}, this);

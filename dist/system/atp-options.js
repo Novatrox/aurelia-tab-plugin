@@ -6,7 +6,8 @@ System.register([], function (_export, _context) {
 		setters: [],
 		execute: function () {
 			_export("atpOptions", atpOptions = {
-				defaultGlobal: true
+				autoFocus: true,
+				autoScroll: true
 			});
 
 			_export("atpOptions", atpOptions);

@@ -5,6 +5,7 @@ define(["exports"], function (exports) {
 		value: true
 	});
 	var atpOptions = exports.atpOptions = {
-		defaultGlobal: true
+		autoFocus: true,
+		autoScroll: true
 	};
 });
