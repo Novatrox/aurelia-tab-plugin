@@ -114,7 +114,8 @@ export let ATPTabContextAttribute = (_dec = customAttribute('tabcontext'), _dec2
 	}
 	detached() {
 		if (this.tabbableChildren.length > 0) {
-			this.handler.unregisterElements(this.tabbableChildren);
+			let parsedLevel = parseInt(this.level.trim(), 10);
+			this.handler.unregisterElements(this.tabbableChildren, parsedLevel);
 		}
 	}
 }, (_descriptor = _applyDecoratedDescriptor(_class2.prototype, 'level', [bindable], {

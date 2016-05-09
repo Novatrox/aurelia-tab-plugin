@@ -127,7 +127,8 @@ define(['exports', 'aurelia-framework', '../atp-configuration', '../atp-handler'
 
 		ATPTabContextAttribute.prototype.detached = function detached() {
 			if (this.tabbableChildren.length > 0) {
-				this.handler.unregisterElements(this.tabbableChildren);
+				var parsedLevel = parseInt(this.level.trim(), 10);
+				this.handler.unregisterElements(this.tabbableChildren, parsedLevel);
 			}
 		};
 

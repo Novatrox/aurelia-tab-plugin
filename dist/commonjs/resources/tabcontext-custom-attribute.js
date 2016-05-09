@@ -128,7 +128,8 @@ var ATPTabContextAttribute = exports.ATPTabContextAttribute = (_dec = (0, _aurel
 
 	ATPTabContextAttribute.prototype.detached = function detached() {
 		if (this.tabbableChildren.length > 0) {
-			this.handler.unregisterElements(this.tabbableChildren);
+			var parsedLevel = parseInt(this.level.trim(), 10);
+			this.handler.unregisterElements(this.tabbableChildren, parsedLevel);
 		}
 	};
 

@@ -33,6 +33,9 @@ export let ATPHandler = (_dec = inject(ATPConfiguration), _dec(_class = class AT
 
 	onTabPress() {
 		console.log("tab fired, reverse is: " + this.reverse);
+		if (!this.currentElements || this.currentElements.length === 0) {
+			return;
+		}
 		let nextIndex = 0;
 		let enabledCurrentElements = this.currentElements.filter(function (item) {
 			if (item.disabled) {
@@ -60,9 +63,11 @@ export let ATPHandler = (_dec = inject(ATPConfiguration), _dec(_class = class AT
 		}
 
 		let nextElement = enabledCurrentElements[nextIndex];
-
 		this.currentIndex = nextIndex;
-		nextElement.focus();
+
+		if (nextElement) {
+			nextElement.focus();
+		}
 	}
 
 	calculateElementsInCurrentContext() {
@@ -134,6 +139,7 @@ export let ATPHandler = (_dec = inject(ATPConfiguration), _dec(_class = class AT
 		if (elementsInLevel.length === 0) {
 			this.contexts.splice(index, 1);
 		}
+		this.calculateElementsInCurrentContext();
 	}
 }) || _class);
 

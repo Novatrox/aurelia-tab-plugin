@@ -33,7 +33,10 @@ export class ATPHandler {
 	
 	
 	onTabPress() {
-		console.log("tab fired, reverse is: " + this.reverse);		
+		console.log("tab fired, reverse is: " + this.reverse);	
+		if(!this.currentElements || this.currentElements.length === 0) {
+			return;
+		}	
 		let nextIndex = 0;
 		let enabledCurrentElements = this.currentElements.filter(function(item) {
 			if(item.disabled) {
@@ -62,10 +65,12 @@ export class ATPHandler {
 		
 		
 		let nextElement = enabledCurrentElements[nextIndex];
-		
-		
 		this.currentIndex = nextIndex;
-		nextElement.focus();
+		
+		if(nextElement) {
+			nextElement.focus();
+		}
+		
 	}
 	
 	
@@ -130,7 +135,8 @@ export class ATPHandler {
 		});
 		if(elementsInLevel.length === 0) {
 			this.contexts.splice(index, 1);
-		} 
+		}
+		this.calculateElementsInCurrentContext();	 
 	}
 }
 

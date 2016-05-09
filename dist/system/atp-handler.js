@@ -49,6 +49,9 @@ System.register(['aurelia-framework', './atp-configuration'], function (_export,
 
 				ATPHandler.prototype.onTabPress = function onTabPress() {
 					console.log("tab fired, reverse is: " + this.reverse);
+					if (!this.currentElements || this.currentElements.length === 0) {
+						return;
+					}
 					var nextIndex = 0;
 					var enabledCurrentElements = this.currentElements.filter(function (item) {
 						if (item.disabled) {
@@ -76,9 +79,11 @@ System.register(['aurelia-framework', './atp-configuration'], function (_export,
 					}
 
 					var nextElement = enabledCurrentElements[nextIndex];
-
 					this.currentIndex = nextIndex;
-					nextElement.focus();
+
+					if (nextElement) {
+						nextElement.focus();
+					}
 				};
 
 				ATPHandler.prototype.calculateElementsInCurrentContext = function calculateElementsInCurrentContext() {
@@ -154,6 +159,7 @@ System.register(['aurelia-framework', './atp-configuration'], function (_export,
 					if (elementsInLevel.length === 0) {
 						this.contexts.splice(index, 1);
 					}
+					this.calculateElementsInCurrentContext();
 				};
 
 				return ATPHandler;

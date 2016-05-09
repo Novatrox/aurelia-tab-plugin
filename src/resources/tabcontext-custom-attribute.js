@@ -79,7 +79,8 @@ export class ATPTabContextAttribute {
 	}
 	detached() {
 		if(this.tabbableChildren.length > 0) {
-			this.handler.unregisterElements(this.tabbableChildren);
+			let parsedLevel = parseInt(this.level.trim(),10);
+			this.handler.unregisterElements(this.tabbableChildren, parsedLevel);
 		}
 	}
 }
