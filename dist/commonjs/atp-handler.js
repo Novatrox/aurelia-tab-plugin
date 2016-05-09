@@ -46,7 +46,7 @@ var ATPHandler = exports.ATPHandler = (_dec = (0, _aureliaFramework.inject)(_atp
 
 	ATPHandler.prototype.onTabPress = function onTabPress() {
 		console.log("tab fired, reverse is: " + this.reverse);
-		if (!this.currentElements || this.currentElements.length === 0) {
+		if (this.currentElements == null || this.currentElements.length === 0) {
 			return;
 		}
 		var nextIndex = 0;
@@ -84,6 +84,12 @@ var ATPHandler = exports.ATPHandler = (_dec = (0, _aureliaFramework.inject)(_atp
 	};
 
 	ATPHandler.prototype.calculateElementsInCurrentContext = function calculateElementsInCurrentContext() {
+		if (this.contexts == null || this.contexts.length === 0) {
+			this.currentElements = null;
+			this.currentIndex = 0;
+			return;
+		}
+
 		var contextLevels = this.contexts.map(function (context) {
 			return context.level;
 		});

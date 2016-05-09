@@ -1,3 +1,6 @@
+### 0.0.5 (2016-05-09)
+** null check bug
+
 ### 0.0.4 (2016-05-09)
 ** fix unregister bug where level was not being passed
 ** fix calculate enabled elements bug after unregister was handled.

@@ -33,7 +33,7 @@ export let ATPHandler = (_dec = inject(ATPConfiguration), _dec(_class = class AT
 
 	onTabPress() {
 		console.log("tab fired, reverse is: " + this.reverse);
-		if (!this.currentElements || this.currentElements.length === 0) {
+		if (this.currentElements == null || this.currentElements.length === 0) {
 			return;
 		}
 		let nextIndex = 0;
@@ -71,6 +71,12 @@ export let ATPHandler = (_dec = inject(ATPConfiguration), _dec(_class = class AT
 	}
 
 	calculateElementsInCurrentContext() {
+		if (this.contexts == null || this.contexts.length === 0) {
+			this.currentElements = null;
+			this.currentIndex = 0;
+			return;
+		}
+
 		let contextLevels = this.contexts.map(function (context) {
 			return context.level;
 		});
