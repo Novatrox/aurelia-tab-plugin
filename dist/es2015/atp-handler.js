@@ -108,6 +108,7 @@ export let ATPHandler = (_dec = inject(ATPConfiguration), _dec(_class = class AT
 	}
 
 	registerElements(elements, level = 0) {
+		var self = this;
 		let index = this.contexts.map(function (el) {
 			return el.level;
 		}).indexOf(level);
@@ -132,10 +133,23 @@ export let ATPHandler = (_dec = inject(ATPConfiguration), _dec(_class = class AT
 			} else {
 				throw "Failed to parse tabIndex";
 			}
+
+			object.element.addEventListener("focus", ev => {
+				this.elementGotFocus(ev);
+			});
+
 			this.contexts[index].elements.push(object);
 		}, this);
 
 		this.calculateElementsInCurrentContext();
+	}
+
+	elementGotFocus(ev) {
+		var target = ev.target;
+		var index = this.currentElements.indexOf(target);
+		if (index !== -1) {
+			this.currentIndex = index;
+		}
 	}
 
 	unregisterElements(elements, level = 0) {
@@ -155,6 +169,10 @@ export let ATPHandler = (_dec = inject(ATPConfiguration), _dec(_class = class AT
 			} else {
 					throw "Failed to parse tabIndex";
 				}
+
+			element.removeEventListener("focus", ev => {
+				this.elementGotFocus(ev);
+			});
 
 			let elementIndex = elementsInLevel.map(function (tabbableElement) {
 				return tabbableElement.element;

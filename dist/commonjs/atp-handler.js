@@ -123,6 +123,7 @@ var ATPHandler = exports.ATPHandler = (_dec = (0, _aureliaFramework.inject)(_atp
 	ATPHandler.prototype.registerElements = function registerElements(elements) {
 		var level = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
 
+		var self = this;
 		var index = this.contexts.map(function (el) {
 			return el.level;
 		}).indexOf(level);
@@ -135,6 +136,8 @@ var ATPHandler = exports.ATPHandler = (_dec = (0, _aureliaFramework.inject)(_atp
 		}
 
 		elements.forEach(function (element) {
+			var _this2 = this;
+
 			var object = new tabbableElement();
 			object.element = element;
 			var attrib = element.attributes.getNamedItem("tabindex");
@@ -147,10 +150,23 @@ var ATPHandler = exports.ATPHandler = (_dec = (0, _aureliaFramework.inject)(_atp
 			} else {
 				throw "Failed to parse tabIndex";
 			}
+
+			object.element.addEventListener("focus", function (ev) {
+				_this2.elementGotFocus(ev);
+			});
+
 			this.contexts[index].elements.push(object);
 		}, this);
 
 		this.calculateElementsInCurrentContext();
+	};
+
+	ATPHandler.prototype.elementGotFocus = function elementGotFocus(ev) {
+		var target = ev.target;
+		var index = this.currentElements.indexOf(target);
+		if (index !== -1) {
+			this.currentIndex = index;
+		}
 	};
 
 	ATPHandler.prototype.unregisterElements = function unregisterElements(elements) {
@@ -163,6 +179,8 @@ var ATPHandler = exports.ATPHandler = (_dec = (0, _aureliaFramework.inject)(_atp
 		var elementsInLevel = this.contexts[index].elements;
 
 		elements.forEach(function (element) {
+			var _this3 = this;
+
 			var attrib = element.attributes.getNamedItem("tabindex");
 			if (attrib && attrib.value) {
 				var indexParsed = parseInt(attrib.value, 10);
@@ -172,6 +190,10 @@ var ATPHandler = exports.ATPHandler = (_dec = (0, _aureliaFramework.inject)(_atp
 			} else {
 					throw "Failed to parse tabIndex";
 				}
+
+			element.removeEventListener("focus", function (ev) {
+				_this3.elementGotFocus(ev);
+			});
 
 			var elementIndex = elementsInLevel.map(function (tabbableElement) {
 				return tabbableElement.element;

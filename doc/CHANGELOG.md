@@ -1,3 +1,6 @@
+### 0.0.10 (2016-05-10)
+** Handle mouse onfocus and resume tab from where focus is
+
 ### 0.0.9 (2016-05-09)
 ** Fixed observing
 ** cleanup

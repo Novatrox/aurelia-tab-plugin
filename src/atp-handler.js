@@ -113,6 +113,7 @@ export class ATPHandler {
 	}
 
 	registerElements(elements: HTMLElement[], level: number = 0) {
+		var self = this;
 		let index = this.contexts.map(function (el) { return el.level; }).indexOf(level);
 		if (index === -1) {
 			var levelContext = new context();
@@ -124,7 +125,7 @@ export class ATPHandler {
 
 		elements.forEach(function (element) {
 			var object = new tabbableElement();
-			object.element = element;
+			object.element = element;			
 			var attrib = element.attributes.getNamedItem("tabindex");
 			if (attrib && attrib.value) {
 				var indexParsed = parseInt(attrib.value, 10);
@@ -135,10 +136,23 @@ export class ATPHandler {
 			} else {
 				throw "Failed to parse tabIndex";
 			}
+			
+			object.element.addEventListener("focus", (ev) => {				
+				 this.elementGotFocus(ev);
+			});
+			
 			this.contexts[index].elements.push(object);
 		}, this);
 
 		this.calculateElementsInCurrentContext();
+	}
+	
+	elementGotFocus(ev) {		
+		var target = ev.target;
+		var index = this.currentElements.indexOf(target);
+		if (index !== -1) {			
+			this.currentIndex = index;							
+		}
 	}
 
 	unregisterElements(elements: HTMLElement[], level: number = 0) {
@@ -156,6 +170,11 @@ export class ATPHandler {
 			} else {
 				throw "Failed to parse tabIndex";
 			}
+			
+			element.removeEventListener("focus",  (ev) => {				
+				 this.elementGotFocus(ev);
+			});
+			
 
 			let elementIndex = elementsInLevel.map(function (tabbableElement) { return tabbableElement.element }).indexOf(element);
 			if (elementIndex === -1) {
