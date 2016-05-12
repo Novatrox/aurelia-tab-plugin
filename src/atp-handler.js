@@ -6,7 +6,7 @@ import {ATPConfiguration} from './atp-configuration';
 export class ATPHandler {
 	contexts: context[] = [];
 	config: ATPConfiguration;
-	currentIndex: number = 0;
+	currentItem: HTMLElement = null;
 	currentElements: HTMLElement[] = [];
 	reverse: boolean = false;
 
@@ -49,24 +49,34 @@ export class ATPHandler {
 
 			return true;
 		});
+		
+		if (enabledCurrentElements == null || enabledCurrentElements.length === 0) {
+			return;
+		}
+		
+		if(this.currentItem == null) {
+			this.currentItem = enabledCurrentElements[0];
+		}
+		
+		var indexOfCurrentItem = enabledCurrentElements.indexOf(this.currentItem);
 
 		if (this.reverse) {
-			if (this.currentIndex == null || this.currentIndex === 0) {
+			if (indexOfCurrentItem === 0) {
 				nextIndex = enabledCurrentElements.length - 1;
 			} else {
-				nextIndex = --this.currentIndex;
+				nextIndex = --indexOfCurrentItem;
 			}
 		} else {
-			if (this.currentIndex == null || this.currentIndex >= enabledCurrentElements.length - 1) {
+			if (indexOfCurrentItem >= enabledCurrentElements.length - 1) {
 				nextIndex = 0;
 			} else {
-				nextIndex = ++this.currentIndex;
+				nextIndex = ++indexOfCurrentItem;
 			}
 		}
 
 
 		let nextElement = enabledCurrentElements[nextIndex];
-		this.currentIndex = nextIndex;
+		this.currentItem = nextElement;
 
 		if (nextElement) {
 			if (this.config.settings.autoFocus) {
@@ -86,7 +96,7 @@ export class ATPHandler {
 	calculateElementsInCurrentContext() {
 		if (this.contexts == null || this.contexts.length === 0) {
 			this.currentElements = null;
-			this.currentIndex = 0;
+			this.currentItem = null;
 			return;
 		}
 
@@ -108,7 +118,7 @@ export class ATPHandler {
 				return -1;
 			}
 		}).map(function (el) { return el.element; });
-		this.currentIndex = null; //reset
+		this.currentItem = null; //reset
 
 	}
 
@@ -151,7 +161,7 @@ export class ATPHandler {
 		var target = ev.target;
 		var index = this.currentElements.indexOf(target);
 		if (index !== -1) {			
-			this.currentIndex = index;							
+			this.currentItem = target;							
 		}
 	}
 

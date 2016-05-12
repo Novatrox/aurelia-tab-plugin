@@ -23,7 +23,7 @@ System.register(['aurelia-framework', './atp-configuration'], function (_export,
 					_classCallCheck(this, ATPHandler);
 
 					this.contexts = [];
-					this.currentIndex = 0;
+					this.currentItem = null;
 					this.currentElements = [];
 					this.reverse = false;
 
@@ -65,22 +65,32 @@ System.register(['aurelia-framework', './atp-configuration'], function (_export,
 						return true;
 					});
 
+					if (enabledCurrentElements == null || enabledCurrentElements.length === 0) {
+						return;
+					}
+
+					if (this.currentItem == null) {
+						this.currentItem = enabledCurrentElements[0];
+					}
+
+					var indexOfCurrentItem = enabledCurrentElements.indexOf(this.currentItem);
+
 					if (this.reverse) {
-						if (this.currentIndex == null || this.currentIndex === 0) {
+						if (indexOfCurrentItem === 0) {
 							nextIndex = enabledCurrentElements.length - 1;
 						} else {
-							nextIndex = --this.currentIndex;
+							nextIndex = --indexOfCurrentItem;
 						}
 					} else {
-						if (this.currentIndex == null || this.currentIndex >= enabledCurrentElements.length - 1) {
+						if (indexOfCurrentItem >= enabledCurrentElements.length - 1) {
 							nextIndex = 0;
 						} else {
-							nextIndex = ++this.currentIndex;
+							nextIndex = ++indexOfCurrentItem;
 						}
 					}
 
 					var nextElement = enabledCurrentElements[nextIndex];
-					this.currentIndex = nextIndex;
+					this.currentItem = nextElement;
 
 					if (nextElement) {
 						if (this.config.settings.autoFocus) {
@@ -96,7 +106,7 @@ System.register(['aurelia-framework', './atp-configuration'], function (_export,
 				ATPHandler.prototype.calculateElementsInCurrentContext = function calculateElementsInCurrentContext() {
 					if (this.contexts == null || this.contexts.length === 0) {
 						this.currentElements = null;
-						this.currentIndex = 0;
+						this.currentItem = null;
 						return;
 					}
 
@@ -120,7 +130,7 @@ System.register(['aurelia-framework', './atp-configuration'], function (_export,
 					}).map(function (el) {
 						return el.element;
 					});
-					this.currentIndex = null;
+					this.currentItem = null;
 				};
 
 				ATPHandler.prototype.registerElements = function registerElements(elements) {
@@ -168,7 +178,7 @@ System.register(['aurelia-framework', './atp-configuration'], function (_export,
 					var target = ev.target;
 					var index = this.currentElements.indexOf(target);
 					if (index !== -1) {
-						this.currentIndex = index;
+						this.currentItem = target;
 					}
 				};
 

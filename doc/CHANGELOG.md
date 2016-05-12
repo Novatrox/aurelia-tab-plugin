@@ -1,3 +1,6 @@
+### 0.0.11 (2016-05-12)
+** Handle currentItem instead of currentIndex to prevent fail when items in list are filtered due to visibility
+
 ### 0.0.10 (2016-05-10)
 ** Handle mouse onfocus and resume tab from where focus is
 
