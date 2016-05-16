@@ -55,8 +55,18 @@ var ATPHandler = exports.ATPHandler = (_dec = (0, _aureliaFramework.inject)(_atp
 				return false;
 			}
 			var style = window.getComputedStyle(item);
-			if (style.display === 'none') {
+			if (style.display === 'none' || style.visibility !== 'visible') {
 				return false;
+			}
+
+			var lastElement = item;
+			while (lastElement != null && lastElement.parentElement != null) {
+
+				var parentStyle = window.getComputedStyle(lastElement.parentElement);
+				if (parentStyle.display === 'none' || parentStyle.visibility !== 'visible') {
+					return false;
+				}
+				lastElement = lastElement.parentElement;
 			}
 
 			return true;

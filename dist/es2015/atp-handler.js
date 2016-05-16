@@ -42,8 +42,18 @@ export let ATPHandler = (_dec = inject(ATPConfiguration), _dec(_class = class AT
 				return false;
 			}
 			var style = window.getComputedStyle(item);
-			if (style.display === 'none') {
+			if (style.display === 'none' || style.visibility !== 'visible') {
 				return false;
+			}
+
+			var lastElement = item;
+			while (lastElement != null && lastElement.parentElement != null) {
+
+				var parentStyle = window.getComputedStyle(lastElement.parentElement);
+				if (parentStyle.display === 'none' || parentStyle.visibility !== 'visible') {
+					return false;
+				}
+				lastElement = lastElement.parentElement;
 			}
 
 			return true;
